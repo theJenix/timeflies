@@ -1,0 +1,23 @@
+<div data-role="page" id="page2">
+    <div data-theme="b" data-role="header">
+        <h3>
+            Task #<%=params[:id]%>
+        </h3>
+	</div>
+	<div data-role="content">
+            <fieldset data-role="controlgroup">
+                <textarea name="" id="textarea1" placeholder=""></textarea>
+				<br/>
+		        <div data-role="fieldcontain">
+                	<label for="textinput1">Title: </label>
+                	<input name="" id="textinput1" placeholder="" value="" type="number" />
+				</div>
+            </fieldset>
+			<a data-role="button" data-direction="reverse" data-transition="slide" href="#page1" data-icon="check" data-iconpos="bottom">
+            Save
+        </a>
+    </div>
+</div>
+<script>
+    //App custom javascript
+</script>

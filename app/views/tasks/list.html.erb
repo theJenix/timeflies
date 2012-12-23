@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<!-- Home -->
+<div data-role="page" id="page1">
+    <div data-theme="b" data-role="header">
+        <h3>
+            TimeFlies
+        </h3>
+    </div>
+    <div data-role="content">
+        <ul id="item_122" data-role="listview" data-divider-theme="b" data-inset="true">
+            <li data-role="list-divider" role="heading">
+                Tasks Assigned to Me
+            </li>
+			<% @data.each do |id, task| %>
+	            <li data-theme="c">
+					<a href="<%= id %>/edit" data-transition="slide">
+						<%= task.name %>
+					</a>
+		        </li>
+			<% end %>
+<!--                    <span class="ui-li-count">
+                        123
+                    </span>
+					-->
+        </ul>
+    </div>
+</div>
+<script>
+    //App custom javascript
+</script>
