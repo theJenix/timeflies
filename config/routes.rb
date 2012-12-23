@@ -1,5 +1,9 @@
 Timeflies::Application.routes.draw do
+  match "tasks/:id/add_log" => 'tasks#add_log'
+
   match "tasks/:id/edit" => 'tasks#edit'
+
+  match "tasks/:id/logs" => 'tasks#logs'
 
   match "tasks/:id/view" => 'tasks#view'
 

@@ -16,11 +16,28 @@ class TasksController < ApplicationController
     super
   end
 
+  def add_log
+    task = @data[params[:id]]
+    log = WorkLog.new
+    log.hours = params[:hours]
+    log.description = params[:description]
+    logger.debug params[:hours]
+    logger.debug params[:description]
+    task.work_logs << log
+    render :action => 'logs'
+  end
+
   def list
     render :data => @data
   end
 
   def edit
+    render :item => @data[params[:id]]
+  end
+
+  def logs
+    logger.debug params[:id]
+    logger.debug @data[params[:id]]
     render :item => @data[params[:id]]
   end
 

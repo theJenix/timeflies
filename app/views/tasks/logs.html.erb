@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<!-- Home -->
+<% item = @data[params[:id]] %>
+<div data-role="page" id="page1">
+    <div data-theme="b" data-role="header">
+        <h3>
+            Task #<%= params[:id] %> - <%= item.name %>
+        </h3>
+    </div>
+    <div data-role="content">
+        <fieldset data-role="controlgroup">
+	        <ul id="item_122" data-role="listview" data-divider-theme="" data-inset="true">
+	            <li data-theme="c">
+					TEST
+				</li>
+				<% item.work_logs.each do |log| %>
+		            <li data-theme="c">
+						<a data-transition="slide">
+							<%= log.description %>
+						</a>
+						<span class="ui-li-count">
+							<%= log.hours %>
+	                    </span>
+			        </li>
+				<% end %>
+	        </ul>
+		</fieldset>
+		<form action="add_log" method="post">
+		    <fieldset data-role="controlgroup">
+		        <div data-role="fieldcontain">
+	            	<label for="textinput1">
+						Hours
+					</label>
+	            	<input name="hours" id="textinput1" placeholder="" value="" type="number" />
+	            	<label for="textinput2">
+						Description
+					</label>
+	            	<input name="description" id="textinput2" placeholder="" value="" />
+				</div>
+			</fieldset>
+			<button type="submit" data-theme="b" name="submit" value="submit-value">Add Log</button>
+		</form>
+	</div>
+</div>
+<script>
+    //App custom javascript
+</script>

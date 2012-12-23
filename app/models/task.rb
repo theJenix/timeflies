@@ -4,5 +4,5 @@ class Task < ActiveRecord::Base
   
   validates :name, :presence => true
   
-  has_many :worklogs
+  has_many :work_logs
 end

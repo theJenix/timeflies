@@ -22,6 +22,7 @@ ActiveRecord::Schema.define(:version => 20121223070534) do
   create_table "work_logs", :force => true do |t|
     t.integer  "hours"
     t.string   "description"
+    t.integer  "task_id"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
