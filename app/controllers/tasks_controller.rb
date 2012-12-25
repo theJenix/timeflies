@@ -17,6 +17,10 @@ class TasksController < ApplicationController
   end
 
   def add_log
+    
+    test = TestObj.new
+    test.name = "woo"
+
     task = @data[params[:id]]
     log = WorkLog.new
     log.hours = params[:hours]

@@ -10,9 +10,6 @@
     <div data-role="content">
         <fieldset data-role="controlgroup">
 	        <ul id="item_122" data-role="listview" data-divider-theme="" data-inset="true">
-	            <li data-theme="c">
-					TEST
-				</li>
 				<% item.work_logs.each do |log| %>
 		            <li data-theme="c">
 						<a data-transition="slide">
@@ -25,7 +22,14 @@
 				<% end %>
 	        </ul>
 		</fieldset>
-		<form action="add_log" method="post">
+		<form id="loginfo" action="javascript:$.mobile.changePage( 'add_log', {
+					  transition: 'none',
+					  reloadPage: true,
+					  reverse: false,
+					  changeHash: false,
+					  type: 'post',
+					  data: $('form#loginfo').serialize()
+				  	  });" method="post">
 		    <fieldset data-role="controlgroup">
 		        <div data-role="fieldcontain">
 	            	<label for="textinput1">

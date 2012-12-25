@@ -10,11 +10,16 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20121223070534) do
+ActiveRecord::Schema.define(:version => 20121223160029) do
 
   create_table "tasks", :force => true do |t|
     t.string   "external_id"
     t.string   "name"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "test_objs", :force => true do |t|
     t.datetime "created_at"
     t.datetime "updated_at"
   end
