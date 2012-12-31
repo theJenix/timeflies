@@ -1,3 +1,5 @@
+require 'ontime'
+
 class TasksController < ApplicationController
   
   def initialize()
@@ -32,7 +34,15 @@ class TasksController < ApplicationController
   end
 
   def list
-    render :data => @data
+    ot = session[:connection];
+    if !ot
+      puts "Creating a new connection"
+      ot = OnTimeConnection.new('ad-juster', ENV['ontime_client_id'], ENV['ontime_client_secret'])
+      ot.login(ENV['ontime_username'], ENV['ontime_password'])
+    end
+    
+    @items = ot.features + ot.defects
+    render
   end
 
   def edit

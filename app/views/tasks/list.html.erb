@@ -9,12 +9,12 @@
     <div data-role="content">
         <ul id="item_122" data-role="listview" data-divider-theme="b" data-inset="true">
             <li data-role="list-divider" role="heading">
-                Tasks Assigned to Me
+                Items Assigned to Me
             </li>
-			<% @data.each do |id, task| %>
+			<% @items.each do |item| %>
 	            <li data-theme="c">
-					<a href="<%= id %>/logs" data-transition="slide">
-						<%= task.name %>
+					<a href="<%= item.id %>/logs" data-transition="slide">
+						<%= item.name %>
 					</a>
 		        </li>
 			<% end %>
