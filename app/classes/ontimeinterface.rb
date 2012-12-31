@@ -23,10 +23,6 @@ module OnTimeInterface
   def post(query, options, &block)
     self.class.post(query, options) { block }
   end
-
-  def query(params)
-    { :query => { :access_token => @access_token }.merge(params) }
-  end
 end  
   
 =begin
@@ -69,10 +65,11 @@ class OnTimeWorkLog
   @old_duration
   @work_units
   
-  attr_accessor :id, :desc, :date_time, :duration, :old_duration, :work_units
+  attr_accessor :id, :item, :desc, :date_time, :duration, :old_duration, :work_units
   
   def initialize(a_name, a_token, u_id)
     base_uri build_base_uri(a_name, '/v1')
+    default_params :access_token => a_token
     
     @access_token = a_token
     @user_id      = u_id
@@ -86,26 +83,43 @@ class OnTimeWorkLog
     # the app will be used to log time immediately after performing it.
     #current_time = Time.new.getutc
     #time_str     = current_time.strftime("%Y-%m-%dT%H:%M:%SZ")
-    
-    delta = @duration - @old_duration
-    duration_left = [@item.remaining_duration - delta, 0].max
-    
-    body = { :user => { :id => @user_id },
-             :item => { :id => @item.id, :item_type => @item.type },
-             :date_time => @date_time,
-             :work_done      => { :duration => @duration,     :time_unit => { :id => 2 } },
-             :remaining_time => { :duration => duration_left, :time_unit => { :id => 2 } },
-           }
 
     # If there's an ID set, we want to update the existing record.
     # Otherwise, post a new record.  In either case, we're sending the same data
     if @id
-      response = post("/work_logs/#{id}", query({}).merge({:body => body.to_json, :headers => { 'Content-Type' => 'application/json' }}))
+      # Compute the duration left based on the item's remaining duration, and the delta between
+      # the current duration and old duration.  This could increase the remaining duration
+      # if duration < old_duration
+      delta         = @duration - @old_duration
+      duration_left = [@item.remaining_duration - delta, 0].max
+      uri           = "/work_logs/#{id}"
     else
-      response = post('/work_logs',       query({}).merge({:body => body.to_json, :headers => { 'Content-Type' => 'application/json' }}))
+      # For new work logs, we don't care about old_duration...just subtract the duration from
+      # remaining duration
+      duration_left = [@item.remaining_duration - @duration, 0].max
+      uri           = '/work_logs'
     end
-    pp response
+    #TODO: this hardcodes the time unit to "hours"...need to be more flexible eventually
+    body = { :user => { :id => @user_id },
+             :item => { :id => @item.id, :item_type => @item.type },
+             :description => @desc,
+             :date_time   => @date_time,
+             :work_done      => { :duration => @duration,     :time_unit => { :id => 2 } },
+             :remaining_time => { :duration => duration_left, :time_unit => { :id => 2 } },
+           }
+
+    response = post(uri, {:body => body.to_json, :headers => { 'Content-Type' => 'application/json' }})
+    # Return whether or not the item was updated on the server
+    data = response["data"]
+    updated = data["itemUpdated"]
     
+    # It's been updated on the server...update the old_duration and id fields
+    if updated
+      @old_duration = @duration
+      @id = data["id"]
+    end
+
+    return updated
   end
 end
 
@@ -117,7 +131,6 @@ class OnTimeItem
   
   @id
   @name
-  @remaining_estimate
   @type
     
   attr_accessor :id, :name, :type
@@ -134,7 +147,8 @@ class OnTimeItem
         obj.id   = result["id"]
         obj.desc = result["description"]
         obj.date_time = result["date_time"]
-        obj.work_done = result["work_done"]["duration"]
+        obj.old_duration = result["work_done"]["duration"]
+        obj.duration = result["work_done"]["duration"]
         objects << obj
       end
     end
@@ -145,14 +159,17 @@ class OnTimeItem
   
   def initialize(a_name, a_token, u_id)
     base_uri build_base_uri(a_name, '/v1')
+    default_params :access_token => a_token
     
+    @account_name = a_name
     @access_token = a_token
     @user_id      = u_id
   end
     
   def remaining_duration
-    response = get("/#{id}", query({}))
-    return response["remaining_duration"]["duration"]
+    response = get("/#{type}/#{id}", {})
+    data = response["data"]
+    return data["remaining_duration"]["duration"]
   end
   
   def work_logs
@@ -161,12 +178,12 @@ class OnTimeItem
     # "item"=>{"name"=>"Reporting Change", "id"=>13, "item_type"=>"defects"}, "date_time"=>"2012-07-02T05:00:00Z"}
     # NOTE: this is a bit of a hack, because filtering by item_id doesn't work
     #get('/work_logs', query({ :item_types => @type, :item_id => @id }))
-    wrap_in_objects(get('/work_logs', query({ :item_types => @type, :user_id => @user_id}))
+    wrap_in_objects(get('/work_logs', :query => { :item_types => @type, :user_id => @user_id }))
   end
   
-  def inspect
-    self.name
-  end
+#  def inspect
+#    self.name
+#  end
     
   def to_s
     self.name
@@ -223,7 +240,7 @@ class OnTimeConnection
       # Construct a uri with /v1 appended.  This lets all future method calls match
       # the API docs exactly.
       base_uri build_base_uri(@account_name, '/v1')
-      #default_params :access_token => @access_token
+      default_params :access_token => @access_token
     end
     
     return logged_in?
@@ -234,10 +251,10 @@ class OnTimeConnection
   end
   
   def defects
-    wrap_in_objects('defect',  get('/defects',  query({ :user_id => @user_id })))
+    wrap_in_objects('defects',  get('/defects',  { :user_id => @user_id }))
   end
   
   def features
-    wrap_in_objects('features', get('/features', query({ :user_id => @user_id })))
+    wrap_in_objects('features', get('/features', { :user_id => @user_id }))
   end
 end
