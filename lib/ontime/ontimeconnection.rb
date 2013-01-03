@@ -29,6 +29,7 @@ class OnTimeConnection
     @client_id     = c_id
     @client_secret = c_secret
     
+    @filters       = Hash.new
     base_uri build_base_uri(a_name, '/')
   end
   
@@ -63,10 +64,72 @@ class OnTimeConnection
   end
   
   def defects
-    wrap_in_objects('defects',  get('/defects',  { :user_id => @user_id }))
+    wrap_in_objects('defects',  filter_raw(get('/defects',  :query => { :user_id => @user_id })))
   end
   
   def features
-    wrap_in_objects('features', get('/features', { :user_id => @user_id }))
+    wrap_in_objects('features', filter_raw(get('/features', :query => { :user_id => @user_id })))
+  end
+  
+  def clear_filter
+    @filters.clear
+  end
+
+  def filter_raw(results)
+    filtered = Array.new
+    # For each result, we want to apply the filters added using the filter_by_...methods
+    results["data"].each do |result|
+      good = true
+      @filters.each do |name, values|
+        key = name
+        test = result
+        # The filter name added using the filter_by methods may refer to inner hashes...this
+        # tests successively shorter keys (by _) to find the hash that matches, then processes
+        # the remainder keys against the hash value.
+        # e.g. "workflow_step" => { "name": ..} will be specified as "workflow_step_name"
+        begin
+          remainder = ""
+          # puts "Testing filter " + key
+          while not test.has_key?(key)
+            inx       = key.rindex("_")
+            # Concat the remainder...this keeps the leading _, to keep separators between
+            # parts of the remainder
+            remainder = key[inx..key.length] + remainder
+            key       = key[0..(inx-1)]
+            # puts "Trying " + key + ", " + remainder
+          end
+          unless key.empty?
+            # puts "Found key " + key + " looping around for remainder " + remainder
+            test = test[key]
+            # Skip the leading _
+            key = remainder[1..remainder.length]
+          end
+        end while not remainder.empty?
+        # puts "Value: " + test
+        if values.include?(test)
+          good = false
+          break
+        end
+      end
+      # Add good results to the filtered list
+      if good
+        filtered << result
+      end  
+    end
+    # We took in a hash that contained data...so we need to return the same
+    return { "data" => filtered }
+  end
+  
+  def method_missing(method_id, *args)
+    if match = /filter_by_([_a-zA-Z]\w*)/.match(method_id.to_s)
+      attribute_name = match.captures.last #.split('_and_')
+ 
+      pp attribute_name
+      pp args[0]
+      @filters[attribute_name] = args[0]
+      return self
+    else
+      super
+    end
   end
 end

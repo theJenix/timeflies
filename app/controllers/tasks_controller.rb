@@ -39,9 +39,14 @@ class TasksController < ApplicationController
       puts "Creating a new connection"
       ot = OnTimeConnection.new('ad-juster', ENV['ontime_client_id'], ENV['ontime_client_secret'])
       ot.login(ENV['ontime_username'], ENV['ontime_password'])
+
+      ot.filter_by_workflow_step_name(APP_CONFIG['excluded_workflow_steps']) \
+        .filter_by_status_name       (APP_CONFIG['excluded_statuses'])
     end
-    
+
     @items = ot.features + ot.defects
+
+    ot.clear_filter
     render
   end
 
@@ -52,10 +57,12 @@ class TasksController < ApplicationController
   def logs
     logger.debug params[:id]
     logger.debug @data[params[:id]]
-    render :item => @data[params[:id]]
+    @item = @items[params[:id]]
+    render 
   end
 
   def view
-    render :item => @data[params[:id]]
+    @item = @items[params[:id]]
+    render 
   end
 end
