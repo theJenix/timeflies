@@ -2,51 +2,52 @@ require 'ontime'
 
 class TasksController < ApplicationController
   
-  def initialize()
-    @data = Hash.new
-    task = Task.new
-    task.name = "It's Broke"
-    @data['1'] = task
-    
-    task = Task.new
-    task.name = "Fix me"
-    @data['2'] = task
-    
-    task = Task.new
-    task.name = "Make it better"
-    @data['3'] = task
+  def initialize()   
     super
   end
 
   def add_log
+    if session.has_key? :items
+      puts "Adding new work log"
+      logger.debug params[:hours]
+      logger.debug params[:description]
+        
+      items = session[:items]
+      item  = lookup_by_id(items, params[:id].to_i)
     
-    test = TestObj.new
-    test.name = "woo"
+      ot = session[:connection];
+    
+      log = ot.new_work_log()
+      log.item      = item
+      log.duration  = params[:hours].to_f
+      log.desc      = params[:description]
 
-    task = @data[params[:id]]
-    log = WorkLog.new
-    log.hours = params[:hours]
-    log.description = params[:description]
-    logger.debug params[:hours]
-    logger.debug params[:description]
-    task.work_logs << log
-    render :action => 'logs'
+      current_time  = Time.new.getutc
+      log.date_time = current_time.strftime("%Y-%m-%dT%H:%M:%SZ")
+    
+      log.save
+    
+      redirect_to :action => 'logs'
+    else
+      puts "Something wrong...redirecting"
+      redirect_to :action => 'list'
+    end
   end
 
   def list
     ot = session[:connection];
-    if !ot
+    if not ot
       puts "Creating a new connection"
-      ot = OnTimeConnection.new('ad-juster', ENV['ontime_client_id'], ENV['ontime_client_secret'])
+      ot = OnTimeConnection.new(APP_CONFIG['account_name'], ENV['ontime_client_id'], ENV['ontime_client_secret'])
       ot.login(ENV['ontime_username'], ENV['ontime_password'])
 
       ot.filter_by_workflow_step_name(APP_CONFIG['excluded_workflow_steps']) \
-        .filter_by_status_name       (APP_CONFIG['excluded_statuses'])
+        .filter_by_status_name(       APP_CONFIG['excluded_statuses'])
+      session[:connection]   = ot
     end
 
     @items = ot.features + ot.defects
-
-    ot.clear_filter
+    session[:items] = @items    
     render
   end
 
@@ -56,13 +57,31 @@ class TasksController < ApplicationController
 
   def logs
     logger.debug params[:id]
-    logger.debug @data[params[:id]]
-    @item = @items[params[:id]]
-    render 
+    if session.has_key? :items
+      items = session[:items]
+      @item = lookup_by_id(items, params[:id].to_i)
+      logger.debug @item
+      render 
+    else
+      redirect_to :action => 'list'
+    end
   end
 
   def view
-    @item = @items[params[:id]]
+    items = session[:items]
+    @item = lookup_by_id(items, params[:id].to_i)
     render 
+  end
+  
+  def lookup_by_id(items, id)
+    found = nil
+    pp items
+    items.each do |item|
+      if item.id == id
+        found = item
+        break
+      end
+    end
+    return found
   end
 end

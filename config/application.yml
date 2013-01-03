@@ -1,7 +1,7 @@
-# SQLite version 3.x
-#   gem install sqlite3
+# Application configuration.  This should be changed to match the account
+# settings as defined in your OnTime account.
 #
-#   Ensure the SQLite 3 gem is defined in your Gemfile
-#   gem 'sqlite3'
+
+account_name: "ad-juster"
 excluded_statuses: ["On Hold", "Waiting", "Closed"]
 excluded_workflow_steps: ["Completed", "Fixed", "Ready For Testing", "Rejected"]

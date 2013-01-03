@@ -1,22 +1,21 @@
 <!DOCTYPE html>
 <!-- Home -->
-<% item = @data[params[:id]] %>
 <div data-role="page" id="page1">
     <div data-theme="b" data-role="header">
         <h3>
-            Task #<%= params[:id] %> - <%= item.name %>
+            Task #<%= params[:id] %> - <%= @item.name %>
         </h3>
     </div>
     <div data-role="content">
         <fieldset data-role="controlgroup">
 	        <ul id="item_122" data-role="listview" data-divider-theme="" data-inset="true">
-				<% item.work_logs.each do |log| %>
+				<% @item.work_logs.each do |log| %>
 		            <li data-theme="c">
 						<a data-transition="slide">
-							<%= log.description %>
+							<%= log.desc %>
 						</a>
 						<span class="ui-li-count">
-							<%= log.hours %>
+							<%= log.duration %>
 	                    </span>
 			        </li>
 				<% end %>
@@ -30,6 +29,7 @@
 					  type: 'post',
 					  data: $('form#loginfo').serialize()
 				  	  });" method="post">
+			<input name="authenticity_token" type="hidden" value="<%= form_authenticity_token %>" />
 		    <fieldset data-role="controlgroup">
 		        <div data-role="fieldcontain">
 	            	<label for="textinput1">

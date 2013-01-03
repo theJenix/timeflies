@@ -128,6 +128,12 @@ class OnTimeConnection
       pp args[0]
       @filters[attribute_name] = args[0]
       return self
+    elsif match = /new_([_a-zA-Z]\w*)/.match(method_id.to_s)
+      puts method_id.to_s
+      class_name = match.captures.last
+      class_name = "OnTime" + class_name.split("_").map(&:capitalize).join
+      puts "Creating class " + class_name
+      return class_name.constantize.new(@account_name, @access_token, @user_id)
     else
       super
     end
