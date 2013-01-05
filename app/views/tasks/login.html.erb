@@ -1,0 +1,29 @@
+<!-- Home -->
+<div data-role="page" id="page1">
+    <div data-theme="a" data-role="header">
+        <h3>
+            TimeFlies
+        </h3>
+    </div>
+	<%= form_tag('do_login', "data-ajax" => false) do %>
+	    <div data-role="content">
+	        <div data-role="fieldcontain">
+	            <fieldset data-role="controlgroup">
+	                <label for="textinput1">
+	                    Username
+	                </label>
+	                <input name="username" id="textinput1" placeholder="" value="" type="text" />
+	            </fieldset>
+	        </div>
+	        <div data-role="fieldcontain">
+	            <fieldset data-role="controlgroup">
+	                <label for="textinput2">
+	                    Password
+	                </label>
+	                <input name="password" id="textinput2" placeholder="" value="" type="password" />
+	            </fieldset>
+	        </div>
+			<%= submit_tag "Login", "data-transition" => "slide", "data-role" => "button" %>
+	    </div>
+	<% end %>
+</div>

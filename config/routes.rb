@@ -1,13 +1,16 @@
 Timeflies::Application.routes.draw do
   match "tasks/:id/add_log" => 'tasks#add_log'
+  match "tasks/:id/edit"    => 'tasks#edit'
+  match "tasks/:id/logs"    => 'tasks#logs'
+  match "tasks/:id/view"    => 'tasks#view'
 
-  match "tasks/:id/edit" => 'tasks#edit'
+  post  "tasks/do_login"
+  get   "tasks/login"
 
-  match "tasks/:id/logs" => 'tasks#logs'
+  get   "tasks/list"
 
-  match "tasks/:id/view" => 'tasks#view'
-
-  get "tasks/list"
+  match 'tasks' => "tasks#redir_login"
+  root :to => "tasks#redir_login"
 
   # The priority is based upon order of creation:
   # first created -> highest priority.

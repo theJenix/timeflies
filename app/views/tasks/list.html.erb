@@ -1,19 +1,19 @@
 <!DOCTYPE html>
 <!-- Home -->
 <div data-role="page" id="page1">
-    <div data-theme="b" data-role="header">
+    <div data-theme="a" data-role="header">
         <h3>
             TimeFlies
         </h3>
     </div>
     <div data-role="content">
-        <ul id="item_122" data-role="listview" data-divider-theme="b" data-inset="true">
+        <ul id="item_122" data-role="listview" data-divider-theme="c" data-inset="true">
             <li data-role="list-divider" role="heading">
                 Items Assigned to Me
             </li>
 			<% @items.each do |item| %>
-	            <li data-theme="c">
-					<a href="<%= item.id %>/logs" data-transition="slide">
+	            <li data-theme="d">
+					<a href="<%= item.id %>/logs" data-transition="slide" >
 						<%= item.name %>
 					</a>
 		        </li>

@@ -59,6 +59,22 @@ class OnTimeConnection
     return logged_in?
   end
   
+  def load_login_info(hash)
+    @access_token = hash[:access_token]
+    @user_id      = hash[:user_id]
+    
+    # TODO test the login information
+
+    # Construct a uri with /v1 appended.  This lets all future method calls match
+    # the API docs exactly.    
+    base_uri build_base_uri(@account_name, '/v1')
+    default_params :access_token => @access_token
+  end
+
+  def store_login_info(hash)
+    hash.merge!({ :access_token => @access_token, :user_id => @user_id })
+  end
+
   def logged_in?
     !@access_token.nil?
   end
