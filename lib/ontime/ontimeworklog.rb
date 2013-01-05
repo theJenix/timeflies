@@ -32,7 +32,7 @@ class OnTimeWorkLog
   include HTTParty
   include OnTimeInterface
   
-  debug_output $stderr
+ # debug_output $stderr
   
   @id
   @item
