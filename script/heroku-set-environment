@@ -1,0 +1,24 @@
+#!/usr/bin/env ruby
+# This command will automatically be run when you run "rails" with Rails 3 gems installed from the root of your application.
+
+require 'pp'
+
+old_env = ENV.keys()
+# Load the app's custom environment variables here, so that they are loaded
+# before environments/*.rb
+app_environment_variables = File.join(File.dirname(__FILE__), '../config', 'app_environment_variables.rb')
+load(app_environment_variables) if File.exists?(app_environment_variables)
+
+app_env = ENV.keys() - old_env
+
+pp app_env
+
+config_str = ''
+
+app_env.each do |key|
+    config_str += ' ' + key + '=' + ENV[key]
+end
+
+puts "Running `heroku config:set --app #{ARGV[0]} #{config_str}`"
+`heroku config:set --app #{ARGV[0]} #{config_str}`
+puts `heroku config --app #{ARGV[0]}`
